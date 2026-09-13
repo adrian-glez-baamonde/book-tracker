@@ -1,0 +1,22 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.db
+
+# Node / React
+node_modules/
+dist/
+build/
+
+# Variables de entorno
+.env
+.env.local
+
+# Editor
+.vscode/
+*.swp
+
+# Sistema
+.DS_Store
+Thumbs.db
