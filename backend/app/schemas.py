@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class StatusItem(str, Enum):
@@ -23,18 +23,18 @@ class UserResponse(BaseModel):
 class BookCreate(BaseModel):
     title: str
     author: str
-    current_page: int = 0
+    current_page: int = Field(default=0, ge=0)
     status: StatusItem = StatusItem.TO_READ
     cover_url: str | None = None
-    total_pages: int | None = None
+    total_pages: int | None = Field(default=None, gt=0)
 
 
 class BookUpdate(BaseModel):
     title: str | None = None
     author: str | None = None
     cover_url: str | None = None
-    total_pages: int | None = None
-    current_page: int | None = None
+    total_pages: int | None = Field(default=None, gt=0)
+    current_page: int | None = Field(default=None, ge=0)
     status: StatusItem | None = None
 
 
@@ -44,8 +44,8 @@ class BookResponse(BaseModel):
     title: str
     author: str
     cover_url: str | None = None
-    total_pages: int | None = None
-    current_page: int
+    total_pages: int | None = Field(default=None, gt=0)
+    current_page: int = Field(ge=0)
     status: StatusItem
     created_at: datetime
     updated_at: datetime
