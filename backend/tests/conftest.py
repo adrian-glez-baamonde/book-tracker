@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.database import Base, get_db
 from app.models import Book, User
+from app.schemas import StatusItem
 from app.security import hash_password
 
 TEST_DATABASE_URL = "sqlite:///./test.db"
@@ -50,6 +51,17 @@ def test_user(client):
 
 
 @pytest.fixture
+def other_user(client):
+    db = TestingSessionLocal()
+    user = User(email="test2@mail.com", hashed_password=hash_password("contraseña123"))
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    db.close()
+    return user
+
+
+@pytest.fixture
 def auth_headers(client, test_user):
     response = client.post(
         "/login",
@@ -57,3 +69,39 @@ def auth_headers(client, test_user):
     )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def test_book(client, test_user):
+    db = TestingSessionLocal()
+    book = Book(
+        title="Libro Prueba",
+        author="Anónimo",
+        current_page=0,
+        total_pages=300,
+        status=StatusItem.TO_READ,
+        owner_id=test_user.id
+    )
+    db.add(book)
+    db.commit()
+    db.refresh(book)
+    db.close()
+    return book
+
+
+@pytest.fixture
+def other_book(client, other_user):
+    db = TestingSessionLocal()
+    book = Book(
+        title="Libro Prueba 2",
+        author="Anónimo",
+        current_page=0,
+        total_pages=500,
+        status=StatusItem.TO_READ,
+        owner_id=other_user.id
+    )
+    db.add(book)
+    db.commit()
+    db.refresh(book)
+    db.close()
+    return book

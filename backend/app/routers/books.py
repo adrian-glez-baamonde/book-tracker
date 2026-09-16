@@ -23,7 +23,7 @@ def validate_page_consistency(current_page: int, total_pages: int | None) -> Non
             detail="El número de páginas actuales no puede ser superior al total")
 
 
-@router.post("/books", response_model=BookResponse)
+@router.post("/books", response_model=BookResponse, status_code=status.HTTP_201_CREATED)
 async def create_book(
     book: BookCreate, 
     db: Session = Depends(get_db),
