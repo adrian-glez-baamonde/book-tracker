@@ -10,7 +10,7 @@ from app.security import hash_password, verify_password, create_access_token
 router = APIRouter()
 
 
-@router.post("/register", response_model=UserResponse)
+@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
 
     existing_user = db.query(User).filter(User.email == user.email).first()
