@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Book, User
 from app.security import get_current_user
-
+from app.services.open_library import search_books_by_title, format_book_result
 
 router = APIRouter()
 
@@ -64,6 +64,15 @@ async def show_books(
     books = query.all()
 
     return books
+
+
+@router.get("/books/search")
+async def search_book(
+    title: str,
+    current_user: User = Depends(get_current_user)
+):
+    results = await search_books_by_title(title)
+    return [format_book_result(doc) for doc in results]
 
 
 @router.get("/books/{book_id}", response_model=BookResponse)
