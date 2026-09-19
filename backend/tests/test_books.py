@@ -89,3 +89,43 @@ def test_delete_book_other_users_fails(client, auth_headers, other_book):
         headers=auth_headers
     )
     assert response.status_code == 404
+
+
+def test_search_books_mocked(client, auth_headers, monkeypatch):
+    async def fake_search(title: str) -> list[dict]:
+        return [
+            {
+                "title": "Mistborn",
+                "author_name": ["Brandon Sanderson"],
+                "cover_i": 12345,
+                "number_of_pages_median": 688
+            }
+        ]
+
+    monkeypatch.setattr("app.routers.books.search_books_by_title", fake_search)
+
+    response = client.get("/books/search?title=mitborn", headers=auth_headers)
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data[0]["title"] == "Mistborn"
+    assert data[0]["author"] == "Brandon Sanderson"
+    assert data[0]["cover_url"] == "https://covers.openlibrary.org/b/id/12345-M.jpg"
+
+
+def test_search_books_no_results(client, auth_headers, monkeypatch):
+    async def fake_search(title: str) -> list[dict]:
+        return []
+
+    monkeypatch.setattr("app.routers.books.search_books_by_title", fake_search)
+
+    response = client.get("/books/search?title=mistborn", headers=auth_headers)
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data == []
+
+
+def test_search_books_unauthorized_fails(client):
+    response = client.get("/books/search?title=mistborn")
+    assert response.status_code == 401
