@@ -49,3 +49,12 @@ class BookResponse(BaseModel):
     status: StatusItem
     created_at: datetime
     updated_at: datetime
+
+
+class StatsResponse(BaseModel):
+    total_books: int
+    to_read_count: int
+    reading_count: int
+    read_count: int
+    total_pages_read: int
+    average_reading_progress: float| None = None
