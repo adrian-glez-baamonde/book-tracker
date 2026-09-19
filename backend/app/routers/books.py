@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from app.schemas import BookCreate, BookUpdate, BookResponse, StatusItem
+from app.schemas import BookCreate, BookUpdate, BookResponse, StatusItem, StatsResponse
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Book, User
@@ -166,3 +166,36 @@ async def delete_book(
     return book
 
 
+@router.get("/stats", response_model=StatsResponse)
+async def get_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    books = db.query(Book).filter(Book.owner_id == current_user.id).all()
+
+    to_read_count = len([b for b in books if b.status == StatusItem.TO_READ])
+    reading_count = len([b for b in books if b.status == StatusItem.READING])
+    read_count = len([b for b in books if b.status == StatusItem.READ])
+    total_books = len(books)
+
+    total_pages_read = sum([b.current_page for b in books])
+
+    reading_books_with_total = [
+        b for b in books 
+        if b.status == StatusItem.READING and b.total_pages is not None
+    ]
+
+    if not reading_books_with_total:
+        average_reading_progress = None
+    else:
+        progresses = [b.current_page / b.total_pages * 100 for b in reading_books_with_total]
+        average_reading_progress = sum(progresses) / len(progresses)
+
+    return {
+        "total_books": total_books,
+        "to_read_count": to_read_count,
+        "reading_count": reading_count,
+        "read_count": read_count,
+        "total_pages_read": total_pages_read,
+        "average_reading_progress": average_reading_progress
+    }
