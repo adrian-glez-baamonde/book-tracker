@@ -90,6 +90,61 @@ def test_book(client, test_user):
 
 
 @pytest.fixture
+def test_book_reading(client, test_user):
+    db = TestingSessionLocal()
+    book = Book(
+        title="Libro Prueba Leyendo",
+        author="También Anónimo",
+        current_page=150,
+        total_pages=600,
+        status=StatusItem.READING,
+        owner_id=test_user.id
+    )
+    db.add(book)
+    db.commit()
+    db.refresh(book)
+    db.close()
+    return book
+
+
+@pytest.fixture
+def test_book_read(client, test_user):
+    db = TestingSessionLocal()
+    book = Book(
+        title="Libro Prueba Leído",
+        author="Otro Anónimo Más",
+        current_page=0,
+        total_pages=600,
+        status=StatusItem.READ,
+        owner_id=test_user.id
+    )
+    db.add(book)
+    db.commit()
+    db.refresh(book)
+    db.close()
+    return book
+
+
+@pytest.fixture
+def test_book_reading_without_total_pages(client, test_user):
+    db = TestingSessionLocal()
+    book = Book(
+        title="Libro Prueba Leyendo Sin Total",
+        author="Anónimo",
+        current_page=100,
+        total_pages=None,
+        status=StatusItem.READING,
+        owner_id=test_user.id
+    )
+    db.add(book)
+    db.commit()
+    db.refresh(book)
+    db.close()
+    return book
+
+
+
+@pytest.fixture
 def other_book(client, other_user):
     db = TestingSessionLocal()
     book = Book(
@@ -98,6 +153,42 @@ def other_book(client, other_user):
         current_page=0,
         total_pages=500,
         status=StatusItem.TO_READ,
+        owner_id=other_user.id
+    )
+    db.add(book)
+    db.commit()
+    db.refresh(book)
+    db.close()
+    return book
+
+
+@pytest.fixture
+def other_book_reading(client, other_user):
+    db = TestingSessionLocal()
+    book = Book(
+        title="Libro Prueba Leyendo",
+        author="También Anónimo",
+        current_page=150,
+        total_pages=600,
+        status=StatusItem.READING,
+        owner_id=other_user.id
+    )
+    db.add(book)
+    db.commit()
+    db.refresh(book)
+    db.close()
+    return book
+
+
+@pytest.fixture
+def other_book_read(client, other_user):
+    db = TestingSessionLocal()
+    book = Book(
+        title="Libro Prueba Leído",
+        author="Otro Anónimo Más",
+        current_page=0,
+        total_pages=600,
+        status=StatusItem.READ,
         owner_id=other_user.id
     )
     db.add(book)
