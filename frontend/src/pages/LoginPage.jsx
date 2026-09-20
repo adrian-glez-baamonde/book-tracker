@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault(); // evita que el formulario recargue la página al enviarse
@@ -27,6 +29,7 @@ function LoginPage() {
 
       const data = await response.json();
       localStorage.setItem("token", data.access_token);
+      navigate("/");
     } catch (err) {
       setError(err.message);
     }
