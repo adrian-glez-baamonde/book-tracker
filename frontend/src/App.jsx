@@ -5,6 +5,7 @@ import PublicRoute from "./components/PublicRoute";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import StatsPage from "./pages/StatsPage";
+import AddBookPage from "./pages/AddBookPage";
 
 function App() {
   return (
@@ -16,6 +17,14 @@ function App() {
           element={
             <ProtectedRoute>
               <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-book"
+          element={
+            <ProtectedRoute>
+              <AddBookPage />
             </ProtectedRoute>
           }
         />
