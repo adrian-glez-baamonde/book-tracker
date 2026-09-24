@@ -9,7 +9,7 @@ import AddBookPage from "./pages/AddBookPage";
 
 function App() {
   return (
-    <div className="min-h-screen bg-cream text-tinta">
+    <div className="min-h-screen bg-linear-to-b from-cream via-cream to-cream-dark text-tinta">
       <Navbar />
       <Routes>
         <Route

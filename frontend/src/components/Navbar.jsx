@@ -18,10 +18,12 @@ function Navbar() {
   }
 
   return (
-    <nav className="bg-verde text-cream px-4 py-3 flex justify-between items-center relative">
+    <nav className="bg-linear-to-r from-verde to-verde-claro text-cream px-4 md:px-8 py-3 flex justify-between items-center relative border-b border-dorado/40 shadow-sm">
       <div className="flex items-center gap-2">
         <Logo className="h-8 w-8 text-dorado" />
-        <span className="font-bold text-dorado text-lg">Monfort</span>
+        <span className="font-serif font-bold text-dorado text-2xl tracking-wide">
+          Monfort
+        </span>
       </div>
 
       <button
