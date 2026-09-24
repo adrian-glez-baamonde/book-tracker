@@ -25,6 +25,7 @@ function AddBookPage() {
 
     if (title.length < 3) {
       setSearchResults([]);
+      setLoadingSearch(false);
       return;
     }
 
