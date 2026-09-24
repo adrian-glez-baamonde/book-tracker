@@ -108,6 +108,14 @@ function AddBookPage() {
           setJustSelected(false);
           setTitle(e.target.value);
         }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+          }
+        }}
+        onBlur={() => {
+          setTimeout(() => setJustSelected(true), 150);
+        }}
         placeholder="Título"
       />
 
