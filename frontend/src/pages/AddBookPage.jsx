@@ -13,6 +13,8 @@ function AddBookPage() {
   const token = localStorage.getItem("token");
 
   const [skipSearch, setSkipSearch] = useState(false);
+  const [justSelected, setJustSelected] = useState(false);
+  const [loadingSearch, setLoadingSearch] = useState(false);
 
   // Búsqueda con debounce: se dispara cada vez que "title" cambia
   useEffect(() => {
@@ -26,6 +28,10 @@ function AddBookPage() {
       return;
     }
 
+    setLoadingSearch(true);
+
+    let ignore = false;
+
     const timeoutId = setTimeout(async () => {
       try {
         const response = await fetch(
@@ -37,17 +43,27 @@ function AddBookPage() {
           },
         );
         const data = await response.json();
-        setSearchResults(data);
+        if (!ignore) {
+          setSearchResults(data);
+        }
       } catch (err) {
         console.error(err);
+      } finally {
+        if (!ignore) {
+          setLoadingSearch(false);
+        }
       }
     }, 200);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      ignore = true;
+      clearTimeout(timeoutId);
+    };
   }, [title]);
 
   function handleSelectResult(book) {
     setSkipSearch(true);
+    setJustSelected(true);
     setTitle(book.title);
     setAuthor(book.author);
     setTotalPages(book.total_pages ?? "");
@@ -88,19 +104,34 @@ function AddBookPage() {
       <input
         type="text"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e) => {
+          setJustSelected(false);
+          setTitle(e.target.value);
+        }}
         placeholder="Título"
       />
 
-      {searchResults.length > 0 && (
-        <ul>
-          {searchResults.map((book, index) => (
-            <li key={index} onClick={() => handleSelectResult(book)}>
-              {book.title} — {book.author}
-            </li>
-          ))}
-        </ul>
+      {title.length >= 3 && !justSelected && loadingSearch && (
+        <p>Buscando...</p>
       )}
+
+      {title.length >= 3 &&
+        !justSelected &&
+        !loadingSearch &&
+        searchResults.length > 0 && (
+          <ul>
+            {searchResults.map((book, index) => (
+              <li key={index} onClick={() => handleSelectResult(book)}>
+                {book.title} — {book.author}
+              </li>
+            ))}
+          </ul>
+        )}
+
+      {title.length >= 3 &&
+        !justSelected &&
+        !loadingSearch &&
+        searchResults.length === 0 && <p>No se han encontrado resultados</p>}
 
       <input
         type="text"
