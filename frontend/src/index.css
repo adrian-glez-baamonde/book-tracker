@@ -45,3 +45,23 @@
     transition: none;
   }
 }
+
+@utility card-surface {
+  @apply rounded-xl border border-dorado/30 bg-linear-to-br from-white/90 to-cream shadow-sm;
+}
+
+@utility input-field {
+  @apply w-full rounded-lg border border-dorado/40 bg-cream/60 px-4 py-2.5 placeholder:text-tinta/40 transition focus:outline-none focus:border-granate focus:ring-2 focus:ring-granate/20;
+}
+
+@utility btn-primary {
+  @apply inline-flex items-center justify-center gap-2 cursor-pointer rounded-lg bg-linear-to-br from-granate to-granate/85 px-5 py-2.5 font-semibold text-cream shadow-sm transition hover:shadow-md hover:brightness-110;
+}
+
+@utility eyebrow {
+  @apply text-xs uppercase tracking-[0.25em] text-dorado;
+}
+
+@utility field-label {
+  @apply block mb-1.5 text-xs uppercase tracking-wider text-tinta/60;
+}

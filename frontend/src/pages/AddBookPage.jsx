@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Reveal from "../components/Reveal";
 
 function AddBookPage() {
   const [title, setTitle] = useState("");
@@ -105,91 +106,120 @@ function AddBookPage() {
   }
 
   return (
-    <div className="flex justify-center px-4 py-8">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white/60 border border-dorado rounded-lg shadow-md p-6"
-      >
-        <h1 className="text-2xl font-bold text-verde mb-6 text-center">
-          Añadir libro
-        </h1>
+    <div className="flex justify-center px-4 py-10">
+      <Reveal className="w-full max-w-lg">
+        <form
+          onSubmit={handleSubmit}
+          className="card-surface relative overflow-hidden px-6 md:px-8 py-8 shadow-lg"
+        >
+          <span className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-granate via-dorado to-verde" />
 
-        <div className="relative mb-3">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => {
-              setJustSelected(false);
-              setTitle(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-              }
-            }}
-            onBlur={() => {
-              setTimeout(() => setJustSelected(true), 150);
-            }}
-            placeholder="Título"
-            className="w-full border border-dorado rounded px-3 py-2 bg-cream focus:outline-none focus:ring-2 focus:ring-granate"
-          />
+          <p className="eyebrow text-center mb-1">Nueva adquisición</p>
+          <h1 className="text-4xl text-verde text-center mb-8">Añadir libro</h1>
 
-          {title.length >= 3 && !justSelected && loadingSearch && (
-            <p className="text-sm text-tinta/60 mt-1">Buscando...</p>
+          {coverUrl && (
+            <div className="flex justify-center mb-6">
+              <img
+                src={coverUrl}
+                alt={`Portada de ${title}`}
+                className="h-40 rounded shadow-md"
+              />
+            </div>
           )}
 
-          {title.length >= 3 &&
-            !justSelected &&
-            !loadingSearch &&
-            searchResults.length > 0 && (
-              <ul className="absolute z-10 w-full bg-white border border-dorado rounded shadow-md mt-1 max-h-56 overflow-y-auto">
-                {searchResults.map((book, index) => (
-                  <li
-                    key={index}
-                    onClick={() => handleSelectResult(book)}
-                    className="px-3 py-2 hover:bg-cream cursor-pointer border-b border-dorado/30 last:border-b-0"
-                  >
-                    <p className="font-medium text-verde">{book.title}</p>
-                    <p className="text-sm text-tinta/70">{book.author}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
+          <label htmlFor="title" className="field-label">
+            Título
+          </label>
+          <div className="relative mb-4">
+            <input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => {
+                setJustSelected(false);
+                setTitle(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                }
+              }}
+              onBlur={() => {
+                setTimeout(() => setJustSelected(true), 150);
+              }}
+              placeholder="Empieza a escribir para buscar..."
+              className="input-field"
+            />
 
-          {title.length >= 3 &&
-            !justSelected &&
-            !loadingSearch &&
-            searchResults.length === 0 && (
-              <p className="text-sm text-tinta/60 mt-1">
-                No se han encontrado resultados
+            {title.length >= 3 && !justSelected && loadingSearch && (
+              <p className="text-sm italic text-tinta/60 mt-2">
+                Buscando en Open Library...
               </p>
             )}
-        </div>
 
-        <input
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          placeholder="Autor"
-          className="w-full border border-dorado rounded px-3 py-2 mb-3 bg-cream focus:outline-none focus:ring-2 focus:ring-granate"
-        />
-        <input
-          type="number"
-          value={totalPages}
-          onChange={(e) => setTotalPages(e.target.value)}
-          placeholder="Páginas totales (opcional)"
-          className="w-full border border-dorado rounded px-3 py-2 mb-4 bg-cream focus:outline-none focus:ring-2 focus:ring-granate"
-        />
+            {title.length >= 3 &&
+              !justSelected &&
+              !loadingSearch &&
+              searchResults.length > 0 && (
+                <ul className="absolute z-10 w-full mt-2 max-h-64 overflow-y-auto rounded-lg border border-dorado/40 bg-white shadow-xl">
+                  {searchResults.map((book, index) => (
+                    <li
+                      key={index}
+                      onClick={() => handleSelectResult(book)}
+                      className="px-4 py-2.5 cursor-pointer border-b border-dorado/20 last:border-b-0 transition-colors hover:bg-cream"
+                    >
+                      <p className="font-medium text-verde">{book.title}</p>
+                      <p className="text-sm text-tinta/70">{book.author}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
 
-        <button
-          type="submit"
-          className="w-full bg-granate text-cream font-semibold py-2 rounded hover:bg-granate/90 transition"
-        >
-          Añadir libro
-        </button>
+            {title.length >= 3 &&
+              !justSelected &&
+              !loadingSearch &&
+              searchResults.length === 0 && (
+                <p className="text-sm italic text-tinta/60 mt-2">
+                  No se han encontrado resultados
+                </p>
+              )}
+          </div>
 
-        {error && <p className="text-red-700 text-sm mt-3">{error}</p>}
-      </form>
+          <label htmlFor="author" className="field-label">
+            Autor
+          </label>
+          <input
+            id="author"
+            type="text"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            placeholder="Nombre del autor"
+            className="input-field mb-4"
+          />
+
+          <label htmlFor="totalPages" className="field-label">
+            Páginas totales
+          </label>
+          <input
+            id="totalPages"
+            type="number"
+            value={totalPages}
+            onChange={(e) => setTotalPages(e.target.value)}
+            placeholder="Opcional"
+            className="input-field mb-6"
+          />
+
+          <button type="submit" className="btn-primary w-full">
+            Añadir libro
+          </button>
+
+          {error && (
+            <p className="mt-4 text-sm text-center text-granate bg-granate/5 border border-granate/20 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
+        </form>
+      </Reveal>
     </div>
   );
 }

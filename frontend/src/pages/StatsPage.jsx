@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Reveal from "../components/Reveal";
 
 function StatsPage() {
   const [stats, setStats] = useState(null);
@@ -34,10 +35,16 @@ function StatsPage() {
 
   if (loading)
     return (
-      <p className="text-center mt-8 text-verde">Cargando estadísticas...</p>
+      <p className="mt-16 text-center font-serif text-2xl text-verde animate-pulse">
+        Cargando estadísticas...
+      </p>
     );
   if (error)
-    return <p className="text-center mt-8 text-red-700">Error: {error}</p>;
+    return (
+      <p className="max-w-md mx-auto mt-16 text-center text-granate bg-granate/5 border border-granate/20 rounded-lg px-4 py-3">
+        Error: {error}
+      </p>
+    );
 
   const items = [
     { label: "Total de libros", value: stats.total_books },
@@ -55,18 +62,24 @@ function StatsPage() {
   ];
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-verde mb-6">Mis estadísticas</h1>
+    <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
+      <Reveal className="mb-8 pb-6 border-b border-dorado/30">
+        <p className="eyebrow mb-1">Tu lectura en cifras</p>
+        <h1 className="text-4xl md:text-5xl text-verde">Mis estadísticas</h1>
+      </Reveal>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {items.map((item) => (
-          <div
-            key={item.label}
-            className="bg-white/60 border border-dorado rounded-lg shadow-sm px-4 py-3"
-          >
-            <p className="text-sm text-tinta/70">{item.label}</p>
-            <p className="text-xl font-bold text-granate">{item.value}</p>
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {items.map((item, index) => (
+          <Reveal key={item.label} delay={(index % 3) * 80}>
+            <div className="card-surface h-full p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+              <p className="text-xs uppercase tracking-[0.2em] text-tinta/60">
+                {item.label}
+              </p>
+              <p className="font-serif text-4xl md:text-5xl font-semibold text-granate mt-2">
+                {item.value}
+              </p>
+            </div>
+          </Reveal>
         ))}
       </div>
     </div>
