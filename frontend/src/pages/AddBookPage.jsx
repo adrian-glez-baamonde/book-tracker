@@ -42,9 +42,14 @@ function AddBookPage() {
             },
           },
         );
+
+        if (!response.ok) {
+          throw new Error("Error al buscar en Open Library");
+        }
+
         const data = await response.json();
         if (!ignore) {
-          setSearchResults(data);
+          setSearchResults(data.slice(0, 8));
         }
       } catch (err) {
         console.error(err);
