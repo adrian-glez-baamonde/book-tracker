@@ -32,25 +32,43 @@ function StatsPage() {
     fetchStats();
   }, []);
 
-  if (loading) return <p>Cargando estadísticas...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading)
+    return (
+      <p className="text-center mt-8 text-verde">Cargando estadísticas...</p>
+    );
+  if (error)
+    return <p className="text-center mt-8 text-red-700">Error: {error}</p>;
+
+  const items = [
+    { label: "Total de libros", value: stats.total_books },
+    { label: "Por leer", value: stats.to_read_count },
+    { label: "Leyendo", value: stats.reading_count },
+    { label: "Leídos", value: stats.read_count },
+    { label: "Páginas leídas", value: stats.total_pages_read },
+    {
+      label: "Progreso medio de lectura",
+      value:
+        stats.average_reading_progress !== null
+          ? `${stats.average_reading_progress.toFixed(1)}%`
+          : "No disponible",
+    },
+  ];
 
   return (
-    <div>
-      <h1>Mis estadísticas</h1>
-      <ul>
-        <li>Total de libros: {stats.total_books}</li>
-        <li>Por leer: {stats.to_read_count}</li>
-        <li>Leyendo: {stats.reading_count}</li>
-        <li>Leídos: {stats.read_count}</li>
-        <li>Páginas leídas: {stats.total_pages_read}</li>
-        <li>
-          Progreso medio de lectura:{" "}
-          {stats.average_reading_progress !== null
-            ? `${stats.average_reading_progress.toFixed(1)}%`
-            : "No disponible"}
-        </li>
-      </ul>
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold text-verde mb-6">Mis estadísticas</h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className="bg-white/60 border border-dorado rounded-lg shadow-sm px-4 py-3"
+          >
+            <p className="text-sm text-tinta/70">{item.label}</p>
+            <p className="text-xl font-bold text-granate">{item.value}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

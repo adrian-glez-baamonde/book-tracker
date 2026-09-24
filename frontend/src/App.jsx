@@ -9,7 +9,7 @@ import AddBookPage from "./pages/AddBookPage";
 
 function App() {
   return (
-    <>
+    <div className="min-h-screen bg-cream text-tinta">
       <Navbar />
       <Routes>
         <Route
@@ -45,7 +45,7 @@ function App() {
           }
         />
       </Routes>
-    </>
+    </div>
   );
 }
 

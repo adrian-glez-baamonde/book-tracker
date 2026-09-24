@@ -8,7 +8,7 @@ function LoginPage() {
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
-    e.preventDefault(); // evita que el formulario recargue la página al enviarse
+    e.preventDefault();
 
     const formData = new URLSearchParams();
     formData.append("username", email);
@@ -36,22 +36,40 @@ function LoginPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Contraseña"
-      />
-      <button type="submit">Entrar</button>
-      {error && <p>{error}</p>}
-    </form>
+    <div className="flex justify-center px-4 py-12">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-sm bg-white/60 border border-dorado rounded-lg shadow-md p-6"
+      >
+        <h1 className="text-2xl font-bold text-verde mb-6 text-center">
+          Iniciar sesión
+        </h1>
+
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          className="w-full border border-dorado rounded px-3 py-2 mb-3 bg-cream focus:outline-none focus:ring-2 focus:ring-granate"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Contraseña"
+          className="w-full border border-dorado rounded px-3 py-2 mb-4 bg-cream focus:outline-none focus:ring-2 focus:ring-granate"
+        />
+
+        <button
+          type="submit"
+          className="w-full bg-granate text-cream font-semibold py-2 rounded hover:bg-granate/90 transition"
+        >
+          Entrar
+        </button>
+
+        {error && <p className="text-red-700 text-sm mt-3">{error}</p>}
+      </form>
+    </div>
   );
 }
 
