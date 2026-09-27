@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Reveal from "../components/Reveal";
-import BookCard from "../components/BookCard";
+import Shelf from "../components/Shelf";
 
 const shelves = [
   { status: "reading", label: "Leyendo" },
@@ -55,19 +55,21 @@ function HomePage() {
     );
 
   return (
-    <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
-      <Reveal className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 pb-6 border-b border-dorado/30">
+    <div className="max-w-5xl mx-auto px-4 md:px-8 py-4 md:py-10">
+      <Reveal className="flex items-center justify-between gap-4 mb-4 md:mb-8 md:pb-6 md:border-b md:border-dorado/30">
         <div>
-          <p className="eyebrow mb-1">Tu biblioteca</p>
-          <h1 className="text-4xl md:text-5xl text-verde">Mis libros</h1>
-          <p className="text-tinta/60 mt-1">
+          <p className="eyebrow mb-1 hidden md:block">Tu biblioteca</p>
+          <h1 className="text-3xl md:text-5xl text-verde">Mis libros</h1>
+          <p className="hidden md:block text-tinta/60 mt-1">
             {books.length} {books.length === 1 ? "libro" : "libros"} en tus
             estanterías
           </p>
         </div>
-        <Link to="/add-book" className="btn-primary self-start sm:self-auto">
-          + Añadir libro
-        </Link>
+        <div className="hidden md:block">
+          <Link to="/add-book" className="btn-primary">
+            + Añadir libro
+          </Link>
+        </div>
       </Reveal>
 
       {books.length === 0 ? (
@@ -78,27 +80,39 @@ function HomePage() {
           <p className="text-tinta/60">Añade tu primer libro para empezar.</p>
         </Reveal>
       ) : (
-        <div>
+        <div className="space-y-6 md:space-y-12 rounded-xl border border-dorado/20 bg-linear-to-b from-cream-dark/60 to-cream-dark p-3 shadow-inner md:p-8">
           {shelves.map((shelf) => {
             const shelfBooks = books.filter(
               (book) => book.status === shelf.status,
             );
 
             return (
-              <section key={shelf.status}>
-                <h2>
-                  {shelf.label} · {shelfBooks.length}
-                </h2>
-                <ul>
-                  {shelfBooks.map((book) => (
-                    <li key={book.id}>{book.title}</li>
-                  ))}
-                </ul>
-              </section>
+              <Reveal key={shelf.status}>
+                <Shelf label={shelf.label} books={shelfBooks} />
+              </Reveal>
             );
           })}
         </div>
       )}
+
+      <Link
+        to="/add-book"
+        aria-label="Añadir libro"
+        className="md:hidden fixed bottom-5 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-granate to-granate/85 text-cream shadow-lg transition active:scale-95"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          className="h-6 w-6"
+        >
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>{" "}
+      </Link>
     </div>
   );
 }
