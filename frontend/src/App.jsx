@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import StatsPage from "./pages/StatsPage";
 import AddBookPage from "./pages/AddBookPage";
+import BookDetailPage from "./pages/BookDetailPage";
 
 function App() {
   const location = useLocation();
@@ -20,6 +21,14 @@ function App() {
           element={
             <ProtectedRoute>
               <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/books/:id"
+          element={
+            <ProtectedRoute>
+              <BookDetailPage />
             </ProtectedRoute>
           }
         />
