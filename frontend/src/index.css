@@ -12,6 +12,9 @@
   --color-madera: #7a5a3c;
   --color-madera-oscura: #4e3825;
   --color-laton: #d6bc82;
+  --color-madera-clara: #9c7a55;
+  --color-nogal: #3b2a1c;
+  --color-nogal-oscuro: #261b12;
 
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Karla", system-ui, sans-serif;
@@ -67,4 +70,27 @@
 
 @utility field-label {
   @apply block mb-1.5 text-xs uppercase tracking-wider text-tinta/60;
+}
+
+/* Madera con veta horizontal sutil (dos rayados de distinto ritmo para que no parezca un patrón repetido) */
+@utility wood {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.06) 0 1px,
+      transparent 1px 7px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.04) 0 1px,
+      transparent 1px 13px
+    ),
+    linear-gradient(to bottom, var(--color-madera), var(--color-madera-oscura));
+}
+
+/* Trasera del mueble: nogal oscuro con los bordes algo más oscuros */
+@utility wood-back {
+  background:
+    radial-gradient(ellipse at center, transparent 40%, rgb(0 0 0 / 0.35) 100%),
+    linear-gradient(to bottom, var(--color-nogal), var(--color-nogal-oscuro));
 }

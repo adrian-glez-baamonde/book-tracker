@@ -80,18 +80,20 @@ function HomePage() {
           <p className="text-tinta/60">Añade tu primer libro para empezar.</p>
         </Reveal>
       ) : (
-        <div className="space-y-6 md:space-y-12 rounded-xl border border-dorado/20 bg-linear-to-b from-cream-dark/60 to-cream-dark p-3 shadow-inner md:p-8">
-          {shelves.map((shelf) => {
-            const shelfBooks = books.filter(
-              (book) => book.status === shelf.status,
-            );
+        <div className="wood rounded-lg p-2 shadow-[0_20px_40px_-15px_rgba(42,33,24,0.7)] md:p-3">
+          <div className="wood-back overflow-hidden rounded-sm">
+            {shelves.map((shelf) => {
+              const shelfBooks = books.filter(
+                (book) => book.status === shelf.status,
+              );
 
-            return (
-              <Reveal key={shelf.status}>
-                <Shelf label={shelf.label} books={shelfBooks} />
-              </Reveal>
-            );
-          })}
+              return (
+                <Reveal key={shelf.status}>
+                  <Shelf label={shelf.label} books={shelfBooks} />
+                </Reveal>
+              );
+            })}
+          </div>
         </div>
       )}
 
