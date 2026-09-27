@@ -118,12 +118,19 @@ function AddBookPage() {
           <h1 className="text-4xl text-verde text-center mb-8">Añadir libro</h1>
 
           {coverUrl && (
-            <div className="flex justify-center mb-6">
+            <div className="flex flex-col items-center gap-2 mb-6">
               <img
                 src={coverUrl}
                 alt={`Portada de ${title}`}
                 className="h-40 rounded shadow-md"
               />
+              <button
+                type="button"
+                className="text-sm text-granate hover:underline cursor-pointer"
+                onClick={() => setCoverUrl(null)}
+              >
+                Borrar portada
+              </button>
             </div>
           )}
 
