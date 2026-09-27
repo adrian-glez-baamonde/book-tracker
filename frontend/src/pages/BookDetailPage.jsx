@@ -1,4 +1,6 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import BookCover from "../components/BookCover";
+import { STATUS_LABELS } from "../constants/bookStatus";
 import { useState, useEffect } from "react";
 
 function BookDetailPage() {
@@ -63,11 +65,78 @@ function BookDetailPage() {
       </p>
     );
 
+  const hasTotal = book.total_pages !== null;
+  const progress = hasTotal
+    ? Math.min(100, (book.current_page / book.total_pages) * 100)
+    : 0;
+
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-4xl text-verde">{book.title}</h1>
-      <p>{book.author}</p>
-      <p>{book.status}</p>
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-8 py-6 md:py-10">
+      <Link
+        to="/"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-tinta/60 transition-colors hover:text-granate"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-4 w-4"
+        >
+          <path d="M19 12H5" />
+          <path d="m11 18-6-6 6-6" />
+        </svg>
+        Volver a la estantería
+      </Link>
+
+      <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:gap-12">
+        <div className="w-40 shrink-0 md:w-56">
+          <BookCover book={book} />
+        </div>
+
+        <div className="w-full flex-1 text-center md:text-left">
+          <p className="eyebrow mb-2">
+            {STATUS_LABELS[book.status] ?? book.status}
+          </p>
+          <h1 className="text-4xl leading-tight text-verde md:text-5xl">
+            {book.title}
+          </h1>
+          {book.author && (
+            <p className="mt-2 font-serif text-xl italic text-tinta/70">
+              {book.author}
+            </p>
+          )}
+
+          <div className="card-surface mt-8 p-5 text-left">
+            <div className="mb-3 flex items-baseline justify-between">
+              <span className="text-xs uppercase tracking-wider text-tinta/60">
+                Progreso de lectura
+              </span>
+              <span className="font-serif text-lg text-granate">
+                {hasTotal
+                  ? `${book.current_page} / ${book.total_pages} páginas`
+                  : `Página ${book.current_page}`}
+              </span>
+            </div>
+
+            {hasTotal ? (
+              <div className="h-2 overflow-hidden rounded-full bg-tinta/10">
+                <div
+                  className="h-full rounded-full bg-linear-to-r from-granate to-dorado"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            ) : (
+              <p className="text-sm italic text-tinta/50">
+                Añade el número total de páginas para ver tu progreso.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
