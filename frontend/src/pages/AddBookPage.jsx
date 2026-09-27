@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Reveal from "../components/Reveal";
 
 function AddBookPage() {
   const [title, setTitle] = useState("");
@@ -107,7 +106,7 @@ function AddBookPage() {
 
   return (
     <div className="flex justify-center px-4 py-10">
-      <Reveal className="w-full max-w-lg">
+      <div className="w-full max-w-lg">
         <form
           onSubmit={handleSubmit}
           className="card-surface relative overflow-hidden px-6 md:px-8 py-8 shadow-lg"
@@ -227,7 +226,7 @@ function AddBookPage() {
             </p>
           )}
         </form>
-      </Reveal>
+      </div>
     </div>
   );
 }
