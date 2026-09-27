@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Reveal from "../components/Reveal";
-
-const statusLabels = { to_read: "Por leer", reading: "Leyendo", read: "Leído" };
+import BookCard from "../components/BookCard";
 
 function HomePage() {
   const [books, setBooks] = useState([]);
@@ -76,33 +75,7 @@ function HomePage() {
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {books.map((book, index) => (
             <Reveal as="li" key={book.id} delay={(index % 3) * 80}>
-              <article className="card-surface relative h-full flex gap-4 overflow-hidden p-4 pl-5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-dorado/60">
-                <span className="absolute inset-y-0 left-0 w-1.5 bg-linear-to-b from-granate to-verde" />
-                {book.cover_url ? (
-                  <img
-                    src={book.cover_url}
-                    alt=""
-                    className="w-14 h-20 shrink-0 object-cover rounded shadow-sm"
-                  />
-                ) : (
-                  <div className="w-14 h-20 shrink-0 rounded bg-linear-to-br from-verde to-verde-claro flex items-center justify-center font-serif text-2xl text-dorado">
-                    {book.title.charAt(0)}
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <h2 className="text-xl leading-tight text-verde line-clamp-2">
-                    {book.title}
-                  </h2>
-                  <p className="text-sm text-tinta/70 mt-1 truncate">
-                    {book.author}
-                  </p>
-                  {book.status && (
-                    <span className="inline-block mt-3 text-xs uppercase tracking-wider text-dorado border border-dorado/40 rounded-full px-2.5 py-0.5">
-                      {statusLabels[book.status] ?? book.status}
-                    </span>
-                  )}
-                </div>
-              </article>
+              <BookCard book={book} />
             </Reveal>
           ))}
         </ul>
