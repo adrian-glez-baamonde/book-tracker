@@ -1,9 +1,24 @@
 import { useState } from "react";
 
 const palettes = [
-  "from-verde to-verde-claro",
-  "from-granate to-[#8a2a3a]",
-  "from-tinta to-[#4a3a2a]",
+  {
+    bg: "from-verde to-verde-claro",
+    title: "text-dorado",
+    author: "text-cream/70",
+    frame: "border-dorado/50",
+  },
+  {
+    bg: "from-granate to-[#8a2a3a]",
+    title: "text-dorado",
+    author: "text-cream/70",
+    frame: "border-dorado/50",
+  },
+  {
+    bg: "from-cream to-cream-dark",
+    title: "text-verde",
+    author: "text-tinta/60",
+    frame: "border-verde/30",
+  },
 ];
 
 function BookCover({ book }) {
@@ -23,13 +38,19 @@ function BookCover({ book }) {
         />
       ) : (
         <div
-          className={`relative h-full w-full bg-linear-to-br ${palette} flex flex-col justify-between p-2 text-center`}
+          className={`relative h-full w-full bg-linear-to-br ${palette.bg} flex flex-col justify-between p-2 text-center`}
         >
-          <div className="pointer-events-none absolute inset-1.5 rounded-sm border border-dorado/50" />
-          <p className="mt-3 px-1 font-serif text-sm leading-tight text-dorado line-clamp-4">
+          <div
+            className={`pointer-events-none absolute inset-1.5 rounded-sm border ${palette.frame}`}
+          />
+          <p
+            className={`mt-3 px-1 font-serif text-sm leading-tight ${palette.title} line-clamp-4`}
+          >
             {book.title}
           </p>
-          <p className="mb-2 px-1 text-[10px] uppercase tracking-wider text-cream/70 line-clamp-2">
+          <p
+            className={`mb-2 px-1 text-[10px] uppercase tracking-wider ${palette.author} line-clamp-2`}
+          >
             {book.author}
           </p>
         </div>

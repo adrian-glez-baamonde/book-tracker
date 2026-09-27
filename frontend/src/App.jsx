@@ -12,7 +12,7 @@ function App() {
   const showNavbar = location.pathname !== "/login";
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-cream via-cream to-cream-dark text-tinta">
+    <div className="min-h-screen flex flex-col bg-linear-to-b from-cream via-cream to-cream-dark text-tinta">
       {showNavbar && <Navbar />}
       <Routes>
         <Route

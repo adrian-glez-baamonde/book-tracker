@@ -3,7 +3,7 @@ import BookCover from "./BookCover";
 
 function Shelf({ label, books }) {
   return (
-    <section className="shadow-[inset_0_12px_14px_-10px_rgba(0,0,0,0.7)]">
+    <section className="flex flex-1 flex-col shadow-[inset_0_12px_14px_-10px_rgba(0,0,0,0.7)]">
       <div className="flex justify-center pt-3 md:pt-5">
         <div className="inline-flex items-center gap-3 rounded-sm border border-dorado bg-linear-to-b from-laton to-dorado px-4 py-0.5 shadow-[0_2px_4px_rgba(0,0,0,0.5)] md:px-5 md:py-1">
           <span className="h-1.5 w-1.5 rounded-full bg-tinta/40" />
@@ -15,13 +15,13 @@ function Shelf({ label, books }) {
       </div>
 
       {books.length === 0 ? (
-        <p className="flex h-32 items-end justify-center pb-4 font-serif italic text-cream/40 md:h-44">
+        <p className="flex min-h-32 flex-1 items-end justify-center pb-4 font-serif italic text-cream/40 md:min-h-44">
           Esta balda está vacía
         </p>
       ) : (
-        <ul className="flex snap-x items-end gap-3 overflow-x-auto px-3 pt-3 md:gap-5 md:px-6 md:pt-5 [scrollbar-width:none]">
+        <ul className="mt-auto flex snap-x items-end gap-3 overflow-x-auto px-3 pt-3 md:gap-5 md:px-6 md:pt-5 [scrollbar-width:none]">
           {books.map((book) => (
-            <li key={book.id} className="w-20 shrink-0 snap-start md:w-28">
+            <li key={book.id} className="w-24 shrink-0 snap-start md:w-28">
               <Link
                 to={`/books/${book.id}`}
                 aria-label={`${book.title}${book.author ? `, de ${book.author}` : ""}`}

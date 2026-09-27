@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Reveal from "../components/Reveal";
 import Shelf from "../components/Shelf";
 
 const shelves = [
@@ -55,8 +54,8 @@ function HomePage() {
     );
 
   return (
-    <div className="max-w-5xl mx-auto px-4 md:px-8 py-4 md:py-10">
-      <Reveal className="flex items-center justify-between gap-4 mb-4 md:mb-8 md:pb-6 md:border-b md:border-dorado/30">
+    <div className="flex flex-1 flex-col w-full max-w-5xl mx-auto px-4 md:px-8 pt-4 pb-24 md:py-10">
+      <div className="flex items-center justify-between gap-4 mb-4 md:mb-8 md:pb-6 md:border-b md:border-dorado/30">
         <div>
           <p className="eyebrow mb-1 hidden md:block">Tu biblioteca</p>
           <h1 className="text-3xl md:text-5xl text-verde">Mis libros</h1>
@@ -70,27 +69,29 @@ function HomePage() {
             + Añadir libro
           </Link>
         </div>
-      </Reveal>
+      </div>
 
       {books.length === 0 ? (
-        <Reveal className="text-center py-16 border border-dashed border-dorado/50 rounded-xl">
+        <div className="text-center py-16 border border-dashed border-dorado/50 rounded-xl">
           <p className="font-serif text-2xl text-verde mb-2">
             Tus estanterías están vacías
           </p>
           <p className="text-tinta/60">Añade tu primer libro para empezar.</p>
-        </Reveal>
+        </div>
       ) : (
-        <div className="wood rounded-lg p-2 shadow-[0_20px_40px_-15px_rgba(42,33,24,0.7)] md:p-3">
-          <div className="wood-back overflow-hidden rounded-sm">
+        <div className="wood flex flex-1 flex-col rounded-lg p-2 shadow-[0_20px_40px_-15px_rgba(42,33,24,0.7)] md:flex-none md:p-3">
+          <div className="wood-back flex flex-1 flex-col overflow-hidden rounded-sm">
             {shelves.map((shelf) => {
               const shelfBooks = books.filter(
                 (book) => book.status === shelf.status,
               );
 
               return (
-                <Reveal key={shelf.status}>
-                  <Shelf label={shelf.label} books={shelfBooks} />
-                </Reveal>
+                <Shelf
+                  key={shelf.status}
+                  label={shelf.label}
+                  books={shelfBooks}
+                />
               );
             })}
           </div>
