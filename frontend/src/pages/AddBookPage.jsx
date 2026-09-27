@@ -187,7 +187,8 @@ function AddBookPage() {
               !loadingSearch &&
               searchResults.length === 0 && (
                 <p className="text-sm italic text-tinta/60 mt-2">
-                  No se han encontrado resultados
+                  No se han encontrado resultados. Prueba con palabras completas
+                  del título.
                 </p>
               )}
           </div>
