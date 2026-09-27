@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Reveal from "../components/Reveal";
 import Logo from "../components/Logo";
 
 function LoginPage() {
@@ -39,7 +38,7 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <Reveal className="w-full max-w-sm">
+      <div className="w-full max-w-sm">
         <form
           onSubmit={handleSubmit}
           className="card-surface relative overflow-hidden px-8 py-10 shadow-lg"
@@ -88,7 +87,7 @@ function LoginPage() {
             </p>
           )}
         </form>
-      </Reveal>
+      </div>
     </div>
   );
 }

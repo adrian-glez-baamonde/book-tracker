@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import Reveal from "../components/Reveal";
 
 function StatsPage() {
   const [stats, setStats] = useState(null);
@@ -63,23 +62,24 @@ function StatsPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
-      <Reveal className="mb-8 pb-6 border-b border-dorado/30">
+      <div className="mb-8 pb-6 border-b border-dorado/30">
         <p className="eyebrow mb-1">Tu lectura en cifras</p>
         <h1 className="text-4xl md:text-5xl text-verde">Mis estadísticas</h1>
-      </Reveal>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {items.map((item, index) => (
-          <Reveal key={item.label} delay={(index % 3) * 80}>
-            <div className="card-surface h-full p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-              <p className="text-xs uppercase tracking-[0.2em] text-tinta/60">
-                {item.label}
-              </p>
-              <p className="font-serif text-4xl md:text-5xl font-semibold text-granate mt-2">
-                {item.value}
-              </p>
-            </div>
-          </Reveal>
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className="card-surface h-full p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+          >
+            <p className="text-xs uppercase tracking-[0.2em] text-tinta/60">
+              {item.label}
+            </p>
+            <p className="font-serif text-4xl md:text-5xl font-semibold text-granate mt-2">
+              {item.value}
+            </p>
+          </div>
         ))}
       </div>
     </div>

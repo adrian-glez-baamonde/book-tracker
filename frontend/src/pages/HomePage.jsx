@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Reveal from "../components/Reveal";
-import BookCard from "../components/BookCard";
+import Shelf from "../components/Shelf";
+
+const shelves = [
+  { status: "reading", label: "Leyendo" },
+  { status: "to-read", label: "Por leer" },
+  { status: "read", label: "Leídos" },
+];
 
 function HomePage() {
   const [books, setBooks] = useState([]);
@@ -49,37 +54,68 @@ function HomePage() {
     );
 
   return (
-    <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
-      <Reveal className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 pb-6 border-b border-dorado/30">
+    <div className="flex flex-1 flex-col w-full max-w-5xl mx-auto px-4 md:px-8 pt-4 pb-24 md:py-10">
+      <div className="flex items-center justify-between gap-4 mb-4 md:mb-8 md:pb-6 md:border-b md:border-dorado/30">
         <div>
-          <p className="eyebrow mb-1">Tu biblioteca</p>
-          <h1 className="text-4xl md:text-5xl text-verde">Mis libros</h1>
-          <p className="text-tinta/60 mt-1">
+          <p className="eyebrow mb-1 hidden md:block">Tu biblioteca</p>
+          <h1 className="text-3xl md:text-5xl text-verde">Mis libros</h1>
+          <p className="hidden md:block text-tinta/60 mt-1">
             {books.length} {books.length === 1 ? "libro" : "libros"} en tus
             estanterías
           </p>
         </div>
-        <Link to="/add-book" className="btn-primary self-start sm:self-auto">
-          + Añadir libro
-        </Link>
-      </Reveal>
+        <div className="hidden md:block">
+          <Link to="/add-book" className="btn-primary">
+            + Añadir libro
+          </Link>
+        </div>
+      </div>
 
       {books.length === 0 ? (
-        <Reveal className="text-center py-16 border border-dashed border-dorado/50 rounded-xl">
+        <div className="text-center py-16 border border-dashed border-dorado/50 rounded-xl">
           <p className="font-serif text-2xl text-verde mb-2">
             Tus estanterías están vacías
           </p>
           <p className="text-tinta/60">Añade tu primer libro para empezar.</p>
-        </Reveal>
+        </div>
       ) : (
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {books.map((book, index) => (
-            <Reveal as="li" key={book.id} delay={(index % 3) * 80}>
-              <BookCard book={book} />
-            </Reveal>
-          ))}
-        </ul>
+        <div className="wood flex flex-1 flex-col rounded-lg p-2 shadow-[0_20px_40px_-15px_rgba(42,33,24,0.7)] md:flex-none md:p-3">
+          <div className="wood-back flex flex-1 flex-col overflow-hidden rounded-sm">
+            {shelves.map((shelf) => {
+              const shelfBooks = books.filter(
+                (book) => book.status === shelf.status,
+              );
+
+              return (
+                <Shelf
+                  key={shelf.status}
+                  label={shelf.label}
+                  books={shelfBooks}
+                />
+              );
+            })}
+          </div>
+        </div>
       )}
+
+      <Link
+        to="/add-book"
+        aria-label="Añadir libro"
+        className="md:hidden fixed bottom-5 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-granate to-granate/85 text-cream shadow-lg transition active:scale-95"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          className="h-6 w-6"
+        >
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>{" "}
+      </Link>
     </div>
   );
 }
