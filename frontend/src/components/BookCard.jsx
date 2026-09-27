@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-const statusLabels = { to_read: "Por leer", reading: "Leyendo", read: "Leído" };
+const statusLabels = {
+  "to-read": "Por leer",
+  reading: "Leyendo",
+  read: "Leído",
+};
 
 function BookCard({ book }) {
   const [imageError, setImageError] = useState(false);

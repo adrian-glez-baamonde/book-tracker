@@ -3,6 +3,12 @@ import { Link } from "react-router-dom";
 import Reveal from "../components/Reveal";
 import BookCard from "../components/BookCard";
 
+const shelves = [
+  { status: "reading", label: "Leyendo" },
+  { status: "to-read", label: "Por leer" },
+  { status: "read", label: "Leídos" },
+];
+
 function HomePage() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -72,13 +78,26 @@ function HomePage() {
           <p className="text-tinta/60">Añade tu primer libro para empezar.</p>
         </Reveal>
       ) : (
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {books.map((book, index) => (
-            <Reveal as="li" key={book.id} delay={(index % 3) * 80}>
-              <BookCard book={book} />
-            </Reveal>
-          ))}
-        </ul>
+        <div>
+          {shelves.map((shelf) => {
+            const shelfBooks = books.filter(
+              (book) => book.status === shelf.status,
+            );
+
+            return (
+              <section key={shelf.status}>
+                <h2>
+                  {shelf.label} · {shelfBooks.length}
+                </h2>
+                <ul>
+                  {shelfBooks.map((book) => (
+                    <li key={book.id}>{book.title}</li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
+        </div>
       )}
     </div>
   );
