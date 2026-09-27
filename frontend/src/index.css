@@ -1,9 +1,67 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Karla:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 @theme {
   --color-cream: #f5f0e6;
+  --color-cream-dark: #ebe3d3;
   --color-verde: #1f3d2b;
+  --color-verde-claro: #2c5139;
   --color-granate: #6b1e2b;
   --color-dorado: #b8964f;
   --color-tinta: #2a2118;
+
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Karla", system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply font-sans text-tinta antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-serif font-semibold tracking-wide;
+  }
+}
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s ease-out,
+    transform 0.7s ease-out;
+
+  &.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@utility card-surface {
+  @apply rounded-xl border border-dorado/30 bg-linear-to-br from-white/90 to-cream shadow-sm;
+}
+
+@utility input-field {
+  @apply w-full rounded-lg border border-dorado/40 bg-cream/60 px-4 py-2.5 placeholder:text-tinta/40 transition focus:outline-none focus:border-granate focus:ring-2 focus:ring-granate/20;
+}
+
+@utility btn-primary {
+  @apply inline-flex items-center justify-center gap-2 cursor-pointer rounded-lg bg-linear-to-br from-granate to-granate/85 px-5 py-2.5 font-semibold text-cream shadow-sm transition hover:shadow-md hover:brightness-110;
+}
+
+@utility eyebrow {
+  @apply text-xs uppercase tracking-[0.25em] text-dorado;
+}
+
+@utility field-label {
+  @apply block mb-1.5 text-xs uppercase tracking-wider text-tinta/60;
 }
