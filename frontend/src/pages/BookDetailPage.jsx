@@ -10,6 +10,7 @@ function BookDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updateError, setUpdateError] = useState(null);
+  const [pageInput, setPageInput] = useState("");
 
   const token = localStorage.getItem("token");
 
@@ -34,6 +35,7 @@ function BookDetailPage() {
         const data = await response.json();
         if (!ignore) {
           setBook(data);
+          setPageInput(data.current_page);
         }
       } catch (err) {
         if (!ignore) {
@@ -72,9 +74,15 @@ function BookDetailPage() {
 
       const data = await response.json();
       setBook(data);
+      setPageInput(data.current_page);
     } catch (err) {
       setUpdateError(err.message);
     }
+  }
+
+  function handlePageSubmit(e) {
+    e.preventDefault();
+    updateBook({ current_page: Number(pageInput) });
   }
 
   if (loading)
@@ -180,6 +188,29 @@ function BookDetailPage() {
                 Añade el número total de páginas para ver tu progreso.
               </p>
             )}
+
+            <form
+              onSubmit={handlePageSubmit}
+              className="mt-5 flex items-end gap-3"
+            >
+              <div className="flex-1">
+                <label htmlFor="currentPage" className="field-label">
+                  Página actual
+                </label>
+                <input
+                  id="currentPage"
+                  type="number"
+                  min="0"
+                  max={book.total_pages ?? undefined}
+                  value={pageInput}
+                  onChange={(e) => setPageInput(e.target.value)}
+                  className="input-field"
+                />
+              </div>
+              <button type="submit" className="btn-primary">
+                Guardar
+              </button>
+            </form>
           </div>
         </div>
       </div>
