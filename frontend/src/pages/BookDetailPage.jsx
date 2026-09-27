@@ -9,6 +9,7 @@ function BookDetailPage() {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [updateError, setUpdateError] = useState(null);
 
   const token = localStorage.getItem("token");
 
@@ -51,6 +52,30 @@ function BookDetailPage() {
       ignore = true;
     };
   }, [id]);
+
+  async function updateBook(changes) {
+    setUpdateError(null);
+
+    try {
+      const response = await fetch(`http://localhost:8000/books/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(changes),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status} al actualizar el libro`);
+      }
+
+      const data = await response.json();
+      setBook(data);
+    } catch (err) {
+      setUpdateError(err.message);
+    }
+  }
 
   if (loading)
     return (
@@ -108,6 +133,27 @@ function BookDetailPage() {
             <p className="mt-2 font-serif text-xl italic text-tinta/70">
               {book.author}
             </p>
+          )}
+
+          <div className="mt-6 flex flex-wrap justify-center gap-2 md:justify-start">
+            {Object.entries(STATUS_LABELS).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => updateBook({ status: value })}
+                className={`cursor-pointer rounded-full border px-4 py-1.5 text-sm transition ${
+                  book.status === value
+                    ? "border-granate bg-granate text-cream"
+                    : "border-dorado/50 text-tinta/70 hover:border-granate hover:text-granate"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {updateError && (
+            <p className="mt-3 text-sm text-granate">{updateError}</p>
           )}
 
           <div className="card-surface mt-8 p-5 text-left">
