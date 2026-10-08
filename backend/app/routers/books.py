@@ -9,6 +9,9 @@ from app.services.open_library import search_books_by_title, format_book_result
 router = APIRouter()
 
 
+NON_NULLABLE_FIELDS = {"title", "author", "status", "current_page"}
+
+
 def resolve_reading_progress(
     status: StatusItem,
     current_page: int,
@@ -19,6 +22,8 @@ def resolve_reading_progress(
     if apply_automatic_transitions:
         if total_pages is not None and current_page == total_pages:
             status = StatusItem.READ                                                    # Ha llegado a la última página
+        elif status == StatusItem.READ and total_pages is not None:
+            status = StatusItem.READING                                                 # Ha bajado de la última página
         elif current_page > 0 and status == StatusItem.TO_READ:
             status = StatusItem.READING                                                 # Ha empezado a leerlo
 
@@ -136,27 +141,23 @@ async def update_book(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"No existe ningún libro con id {book_id}")
 
-    if book_update.title is not None:
-        book.title = book_update.title
+    update_data = book_update.model_dump(exclude_unset=True)                           # Solo los campos que venían en el JSON
 
-    if book_update.author is not None:
-        book.author = book_update.author
+    null_fields = sorted(
+        field for field in NON_NULLABLE_FIELDS
+        if field in update_data and update_data[field] is None
+    )
+    if null_fields:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=f"Estos campos no pueden ser nulos: {', '.join(null_fields)}")
 
-    if book_update.cover_url is not None:
-        book.cover_url = book_update.cover_url
-
-    if book_update.total_pages is not None:
-        book.total_pages = book_update.total_pages
-
-    if book_update.current_page is not None:
-        book.current_page = book_update.current_page
-
-    if book_update.status is not None:
-        book.status = book_update.status
+    for field, value in update_data.items():
+        setattr(book, field, value)                                                     # Equivale a book.<field> = value
 
     # Solo hay transición automática si el usuario cambió la página y NO eligió estado
     page_changed_without_status = (
-        book_update.current_page is not None and book_update.status is None
+        "current_page" in update_data and "status" not in update_data
     )
 
     book.status, book.current_page = resolve_reading_progress(

@@ -1,22 +1,42 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import BookCover from "../components/BookCover";
+import BottomSheet from "../components/BottomSheet";
 import { STATUS_LABELS } from "../constants/bookStatus";
 import { useState, useEffect } from "react";
 
+const EMPTY_EDIT_FORM = { title: "", author: "", totalPages: "", coverUrl: "" };
+
+// Intenta sacar el mensaje "detail" que devuelve FastAPI; si no, usa uno genérico
+async function getErrorMessage(response, fallback) {
+  try {
+    const data = await response.json();
+    if (typeof data.detail === "string") return data.detail;
+  } catch {
+    // La respuesta no era JSON: usamos el mensaje genérico
+  }
+  return `${fallback} (error ${response.status})`;
+}
+
 function BookDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updateError, setUpdateError] = useState(null);
   const [pageInput, setPageInput] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState(EMPTY_EDIT_FORM);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     setLoading(true);
     setError(null);
+    setIsEditing(false);
 
     let ignore = false;
 
@@ -55,6 +75,7 @@ function BookDetailPage() {
     };
   }, [id]);
 
+  // Devuelve true si se guardó y false si hubo error
   async function updateBook(changes) {
     setUpdateError(null);
 
@@ -69,20 +90,90 @@ function BookDetailPage() {
       });
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status} al actualizar el libro`);
+        throw new Error(
+          await getErrorMessage(response, "No se pudo actualizar el libro"),
+        );
       }
 
       const data = await response.json();
       setBook(data);
       setPageInput(data.current_page);
+      return true;
     } catch (err) {
       setUpdateError(err.message);
+      return false;
     }
   }
 
   function handlePageSubmit(e) {
     e.preventDefault();
     updateBook({ current_page: Number(pageInput) });
+  }
+
+  function openEditForm() {
+    setEditForm({
+      title: book.title,
+      author: book.author ?? "",
+      totalPages: book.total_pages ?? "",
+      coverUrl: book.cover_url ?? "",
+    });
+    setUpdateError(null);
+    setConfirmingDelete(false);
+    setIsEditing(true);
+  }
+
+  function closeEditForm() {
+    setUpdateError(null);
+    setConfirmingDelete(false);
+    setIsEditing(false);
+  }
+
+  function handleEditChange(e) {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+  }
+
+  async function handleEditSubmit(e) {
+    e.preventDefault();
+
+    const coverUrl = editForm.coverUrl.trim();
+
+    const saved = await updateBook({
+      title: editForm.title.trim(),
+      author: editForm.author.trim(),
+      total_pages:
+        editForm.totalPages === "" ? null : Number(editForm.totalPages),
+      cover_url: coverUrl === "" ? null : coverUrl,
+    });
+
+    if (saved) {
+      setIsEditing(false);
+    }
+  }
+
+  async function handleDelete() {
+    setUpdateError(null);
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch(`http://localhost:8000/books/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          await getErrorMessage(response, "No se pudo borrar el libro"),
+        );
+      }
+
+      navigate("/");
+    } catch (err) {
+      setUpdateError(err.message);
+      setIsDeleting(false);
+    }
   }
 
   if (loading)
@@ -127,7 +218,8 @@ function BookDetailPage() {
 
       <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:gap-12">
         <div className="w-40 shrink-0 md:w-56">
-          <BookCover book={book} />
+          {/* La key reinicia BookCover (y su imageError) cuando cambia la portada */}
+          <BookCover key={book.cover_url ?? "sin-portada"} book={book} />
         </div>
 
         <div className="w-full flex-1 text-center md:text-left">
@@ -160,7 +252,7 @@ function BookDetailPage() {
             ))}
           </div>
 
-          {updateError && (
+          {updateError && !isEditing && (
             <p className="mt-3 text-sm text-granate">{updateError}</p>
           )}
 
@@ -212,8 +304,165 @@ function BookDetailPage() {
               </button>
             </form>
           </div>
+
+          <button
+            type="button"
+            onClick={openEditForm}
+            className="mt-6 inline-flex cursor-pointer items-center gap-1.5 text-sm text-tinta/60 transition-colors hover:text-granate"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4"
+            >
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+            </svg>
+            Editar datos del libro
+          </button>
         </div>
       </div>
+
+      <BottomSheet
+        isOpen={isEditing}
+        onClose={closeEditForm}
+        title="Editar datos"
+      >
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="editTitle" className="field-label">
+              Título
+            </label>
+            <input
+              id="editTitle"
+              name="title"
+              type="text"
+              required
+              value={editForm.title}
+              onChange={handleEditChange}
+              className="input-field"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="editAuthor" className="field-label">
+              Autor
+            </label>
+            <input
+              id="editAuthor"
+              name="author"
+              type="text"
+              value={editForm.author}
+              onChange={handleEditChange}
+              className="input-field"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="editTotalPages" className="field-label">
+              Páginas totales
+            </label>
+            <input
+              id="editTotalPages"
+              name="totalPages"
+              type="number"
+              min="1"
+              value={editForm.totalPages}
+              onChange={handleEditChange}
+              placeholder="Déjalo vacío si no lo sabes"
+              className="input-field"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="editCoverUrl" className="field-label">
+              URL de la portada
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="editCoverUrl"
+                name="coverUrl"
+                type="url"
+                value={editForm.coverUrl}
+                onChange={handleEditChange}
+                placeholder="https://..."
+                className="input-field"
+              />
+              {editForm.coverUrl && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditForm((prev) => ({ ...prev, coverUrl: "" }))
+                  }
+                  className="shrink-0 cursor-pointer text-sm text-tinta/60 transition-colors hover:text-granate"
+                >
+                  Quitar
+                </button>
+              )}
+            </div>
+          </div>
+
+          {updateError && <p className="text-sm text-granate">{updateError}</p>}
+
+          <div className="flex flex-wrap gap-3">
+            <button type="submit" className="btn-primary">
+              Guardar cambios
+            </button>
+            <button
+              type="button"
+              onClick={closeEditForm}
+              className="cursor-pointer px-4 py-2 text-sm text-tinta/70 transition-colors hover:text-granate"
+            >
+              Cancelar
+            </button>
+          </div>
+
+          <div className="border-t border-dorado/30 pt-4">
+            {!confirmingDelete ? (
+              <button
+                type="button"
+                onClick={() => setConfirmingDelete(true)}
+                className="cursor-pointer rounded-md border border-granate/40 px-4 py-2 text-sm text-granate transition hover:bg-granate hover:text-cream"
+              >
+                Borrar libro
+              </button>
+            ) : (
+              <div
+                role="alert"
+                className="rounded-lg border border-granate/30 bg-granate/5 p-4"
+              >
+                <p className="text-sm text-granate">
+                  ¿Seguro que quieres borrar «{book.title}»? Esta acción no se
+                  puede deshacer.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="cursor-pointer rounded-md bg-granate px-4 py-2 text-sm text-cream transition hover:bg-granate/90 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isDeleting ? "Borrando..." : "Sí, borrar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmingDelete(false)}
+                    disabled={isDeleting}
+                    className="cursor-pointer px-4 py-2 text-sm text-tinta/70 transition-colors hover:text-granate disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </form>
+      </BottomSheet>
     </div>
   );
 }

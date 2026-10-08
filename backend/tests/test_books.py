@@ -178,6 +178,71 @@ def test_update_status_from_read_to_to_read_resets_current_page(client, auth_hea
     assert data["current_page"] == 0
 
 
+def test_update_cover_url_to_null_removes_cover(client, auth_headers, test_book):
+    client.patch(
+        f"/books/{test_book.id}",
+        json={"cover_url": "https://covers.openlibrary.org/b/id/12345-M.jpg"},
+        headers=auth_headers
+    )
+
+    response = client.patch(
+        f"/books/{test_book.id}",
+        json={"cover_url": None},
+        headers=auth_headers
+    )
+    assert response.status_code == 200
+    assert response.json()["cover_url"] is None
+
+
+def test_update_total_pages_to_null_removes_total(client, auth_headers, test_book_reading):
+    response = client.patch(
+        f"/books/{test_book_reading.id}",
+        json={"total_pages": None},
+        headers=auth_headers
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_pages"] is None
+    assert data["current_page"] == 150
+
+
+def test_update_non_nullable_field_to_null_fails(client, auth_headers, test_book):
+    response = client.patch(
+        f"/books/{test_book.id}",
+        json={"title": None},
+        headers=auth_headers
+    )
+    assert response.status_code == 422
+
+
+def test_update_omitted_fields_are_not_changed(client, auth_headers, test_book_reading):
+    response = client.patch(
+        f"/books/{test_book_reading.id}",
+        json={"title": "Solo cambio el título"},
+        headers=auth_headers
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["title"] == "Solo cambio el título"
+    assert data["author"] == "También Anónimo"
+    assert data["total_pages"] == 600
+    assert data["current_page"] == 150
+
+
+def test_update_current_page_below_total_on_read_book_sets_reading(client, auth_headers, test_book):
+    client.patch(f"/books/{test_book.id}", json={"status": "read"}, headers=auth_headers)
+
+    response = client.patch(
+        f"/books/{test_book.id}",
+        json={"current_page": 200},
+        headers=auth_headers
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "reading"
+    assert data["current_page"] == 200
+
+
 def test_update_other_field_does_not_trigger_automatic_transition(client, auth_headers, test_book):
     client.patch(f"/books/{test_book.id}", json={"status": "read"}, headers=auth_headers)
     client.patch(f"/books/{test_book.id}", json={"status": "reading"}, headers=auth_headers)
