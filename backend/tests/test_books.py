@@ -322,3 +322,40 @@ def test_search_books_no_results(client, auth_headers, monkeypatch):
 def test_search_books_unauthorized_fails(client):
     response = client.get("/books/search?title=mistborn")
     assert response.status_code == 401
+
+
+def test_create_book_invalid_cover_url_fails(client, auth_headers):
+    response = client.post(
+        "/books",
+        json={
+            "title": "Libro Prueba",
+            "author": "Anónimo",
+            "cover_url": "string"
+        },
+        headers=auth_headers
+    )
+    assert response.status_code == 422
+
+
+def test_update_book_invalid_cover_url_fails(client, auth_headers, test_book):
+    response = client.patch(
+        f"/books/{test_book.id}",
+        json={"cover_url": "ftp://ejemplo.com/portada.jpg"},
+        headers=auth_headers
+    )
+    assert response.status_code == 422
+
+
+def test_create_book_valid_cover_url_is_stored_as_text(client, auth_headers):
+    cover_url = "https://covers.openlibrary.org/b/id/12345-M.jpg"
+    response = client.post(
+        "/books",
+        json={
+            "title": "Libro Prueba",
+            "author": "Anónimo",
+            "cover_url": cover_url
+        },
+        headers=auth_headers
+    )
+    assert response.status_code == 201
+    assert response.json()["cover_url"] == cover_url
