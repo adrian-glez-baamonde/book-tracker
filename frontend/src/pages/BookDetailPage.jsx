@@ -28,6 +28,8 @@ function BookDetailPage() {
   const [pageInput, setPageInput] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState(EMPTY_EDIT_FORM);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -116,11 +118,13 @@ function BookDetailPage() {
       coverUrl: book.cover_url ?? "",
     });
     setUpdateError(null);
+    setConfirmingDelete(false);
     setIsEditing(true);
   }
 
   function closeEditForm() {
     setUpdateError(null);
+    setConfirmingDelete(false);
     setIsEditing(false);
   }
 
@@ -148,12 +152,8 @@ function BookDetailPage() {
   }
 
   async function handleDelete() {
-    const confirmed = window.confirm(
-      `¿Seguro que quieres borrar "${book.title}"? Esta acción no se puede deshacer.`,
-    );
-    if (!confirmed) return;
-
     setUpdateError(null);
+    setIsDeleting(true);
 
     try {
       const response = await fetch(`http://localhost:8000/books/${id}`, {
@@ -172,6 +172,7 @@ function BookDetailPage() {
       navigate("/");
     } catch (err) {
       setUpdateError(err.message);
+      setIsDeleting(false);
     }
   }
 
@@ -422,13 +423,43 @@ function BookDetailPage() {
           </div>
 
           <div className="border-t border-dorado/30 pt-4">
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="cursor-pointer rounded-md border border-granate/40 px-4 py-2 text-sm text-granate transition hover:bg-granate hover:text-cream"
-            >
-              Borrar libro
-            </button>
+            {!confirmingDelete ? (
+              <button
+                type="button"
+                onClick={() => setConfirmingDelete(true)}
+                className="cursor-pointer rounded-md border border-granate/40 px-4 py-2 text-sm text-granate transition hover:bg-granate hover:text-cream"
+              >
+                Borrar libro
+              </button>
+            ) : (
+              <div
+                role="alert"
+                className="rounded-lg border border-granate/30 bg-granate/5 p-4"
+              >
+                <p className="text-sm text-granate">
+                  ¿Seguro que quieres borrar «{book.title}»? Esta acción no se
+                  puede deshacer.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="cursor-pointer rounded-md bg-granate px-4 py-2 text-sm text-cream transition hover:bg-granate/90 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isDeleting ? "Borrando..." : "Sí, borrar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmingDelete(false)}
+                    disabled={isDeleting}
+                    className="cursor-pointer px-4 py-2 text-sm text-tinta/70 transition-colors hover:text-granate disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </form>
       </BottomSheet>
