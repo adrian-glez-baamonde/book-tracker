@@ -19,8 +19,10 @@ def resolve_reading_progress(
     if apply_automatic_transitions:
         if total_pages is not None and current_page == total_pages:
             status = StatusItem.READ                                                    # Ha llegado a la última página
+        elif status == StatusItem.READ and total_pages is not None:
+            status = StatusItem.READING                                                 # Ha bajado de la última página
         elif current_page > 0 and status == StatusItem.TO_READ:
-            status = StatusItem.READING                                                 # Ha empezado a leerlo
+            status = StatusItem.READING                                                 # Ha empezado a leerlo                                               # Ha empezado a leerlo
 
     # 2. Coherencia entre estado y página
     if status == StatusItem.READ and total_pages is not None:

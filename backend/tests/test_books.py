@@ -178,6 +178,20 @@ def test_update_status_from_read_to_to_read_resets_current_page(client, auth_hea
     assert data["current_page"] == 0
 
 
+def test_update_current_page_below_total_on_read_book_sets_reading(client, auth_headers, test_book):
+    client.patch(f"/books/{test_book.id}", json={"status": "read"}, headers=auth_headers)
+
+    response = client.patch(
+        f"/books/{test_book.id}",
+        json={"current_page": 200},
+        headers=auth_headers
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "reading"
+    assert data["current_page"] == 200
+
+
 def test_update_other_field_does_not_trigger_automatic_transition(client, auth_headers, test_book):
     client.patch(f"/books/{test_book.id}", json={"status": "read"}, headers=auth_headers)
     client.patch(f"/books/{test_book.id}", json={"status": "reading"}, headers=auth_headers)
