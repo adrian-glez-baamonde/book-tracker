@@ -1,6 +1,17 @@
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel, Field
+from typing import Annotated
+from pydantic import AfterValidator, BaseModel, Field, HttpUrl, TypeAdapter
+
+
+_http_url_adapter = TypeAdapter(HttpUrl)
+
+
+def validate_http_url(value: str) -> str:
+    return str(_http_url_adapter.validate_python(value))                            # Valida como URL http/https y la devuelve como str
+
+
+CoverUrl = Annotated[str, AfterValidator(validate_http_url)]
 
 
 class StatusItem(str, Enum):
@@ -25,14 +36,14 @@ class BookCreate(BaseModel):
     author: str
     current_page: int = Field(default=0, ge=0)
     status: StatusItem = StatusItem.TO_READ
-    cover_url: str | None = None
+    cover_url: CoverUrl | None = None
     total_pages: int | None = Field(default=None, gt=0)
 
 
 class BookUpdate(BaseModel):
     title: str | None = None
     author: str | None = None
-    cover_url: str | None = None
+    cover_url: CoverUrl | None = None
     total_pages: int | None = Field(default=None, gt=0)
     current_page: int | None = Field(default=None, ge=0)
     status: StatusItem | None = None
