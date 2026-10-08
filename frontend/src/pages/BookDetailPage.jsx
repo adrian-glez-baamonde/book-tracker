@@ -1,5 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import BookCover from "../components/BookCover";
+import BottomSheet from "../components/BottomSheet";
 import { STATUS_LABELS } from "../constants/bookStatus";
 import { useState, useEffect } from "react";
 
@@ -303,137 +304,134 @@ function BookDetailPage() {
             </form>
           </div>
 
-          {!isEditing ? (
-            <button
-              type="button"
-              onClick={openEditForm}
-              className="mt-6 inline-flex cursor-pointer items-center gap-1.5 text-sm text-tinta/60 transition-colors hover:text-granate"
+          <button
+            type="button"
+            onClick={openEditForm}
+            className="mt-6 inline-flex cursor-pointer items-center gap-1.5 text-sm text-tinta/60 transition-colors hover:text-granate"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-              >
-                <path d="M12 20h9" />
-                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-              </svg>
-              Editar datos del libro
-            </button>
-          ) : (
-            <form
-              onSubmit={handleEditSubmit}
-              className="card-surface mt-6 space-y-4 p-5 text-left"
-            >
-              <h2 className="text-2xl text-verde">Editar datos</h2>
-
-              <div>
-                <label htmlFor="editTitle" className="field-label">
-                  Título
-                </label>
-                <input
-                  id="editTitle"
-                  name="title"
-                  type="text"
-                  required
-                  value={editForm.title}
-                  onChange={handleEditChange}
-                  className="input-field"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="editAuthor" className="field-label">
-                  Autor
-                </label>
-                <input
-                  id="editAuthor"
-                  name="author"
-                  type="text"
-                  value={editForm.author}
-                  onChange={handleEditChange}
-                  className="input-field"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="editTotalPages" className="field-label">
-                  Páginas totales
-                </label>
-                <input
-                  id="editTotalPages"
-                  name="totalPages"
-                  type="number"
-                  min="1"
-                  value={editForm.totalPages}
-                  onChange={handleEditChange}
-                  placeholder="Déjalo vacío si no lo sabes"
-                  className="input-field"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="editCoverUrl" className="field-label">
-                  URL de la portada
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    id="editCoverUrl"
-                    name="coverUrl"
-                    type="url"
-                    value={editForm.coverUrl}
-                    onChange={handleEditChange}
-                    placeholder="https://..."
-                    className="input-field"
-                  />
-                  {editForm.coverUrl && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setEditForm((prev) => ({ ...prev, coverUrl: "" }))
-                      }
-                      className="shrink-0 cursor-pointer text-sm text-tinta/60 transition-colors hover:text-granate"
-                    >
-                      Quitar
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {updateError && (
-                <p className="text-sm text-granate">{updateError}</p>
-              )}
-
-              <div className="flex flex-wrap gap-3">
-                <button type="submit" className="btn-primary">
-                  Guardar cambios
-                </button>
-                <button
-                  type="button"
-                  onClick={closeEditForm}
-                  className="cursor-pointer px-4 py-2 text-sm text-tinta/70 transition-colors hover:text-granate"
-                >
-                  Cancelar
-                </button>
-              </div>
-
-              <div className="border-t border-dorado/30 pt-4">
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  className="cursor-pointer rounded-md border border-granate/40 px-4 py-2 text-sm text-granate transition hover:bg-granate hover:text-cream"
-                >
-                  Borrar libro
-                </button>
-              </div>
-            </form>
-          )}
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+            </svg>
+            Editar datos del libro
+          </button>
         </div>
       </div>
+
+      <BottomSheet
+        isOpen={isEditing}
+        onClose={closeEditForm}
+        title="Editar datos"
+      >
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="editTitle" className="field-label">
+              Título
+            </label>
+            <input
+              id="editTitle"
+              name="title"
+              type="text"
+              required
+              value={editForm.title}
+              onChange={handleEditChange}
+              className="input-field"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="editAuthor" className="field-label">
+              Autor
+            </label>
+            <input
+              id="editAuthor"
+              name="author"
+              type="text"
+              value={editForm.author}
+              onChange={handleEditChange}
+              className="input-field"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="editTotalPages" className="field-label">
+              Páginas totales
+            </label>
+            <input
+              id="editTotalPages"
+              name="totalPages"
+              type="number"
+              min="1"
+              value={editForm.totalPages}
+              onChange={handleEditChange}
+              placeholder="Déjalo vacío si no lo sabes"
+              className="input-field"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="editCoverUrl" className="field-label">
+              URL de la portada
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="editCoverUrl"
+                name="coverUrl"
+                type="url"
+                value={editForm.coverUrl}
+                onChange={handleEditChange}
+                placeholder="https://..."
+                className="input-field"
+              />
+              {editForm.coverUrl && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditForm((prev) => ({ ...prev, coverUrl: "" }))
+                  }
+                  className="shrink-0 cursor-pointer text-sm text-tinta/60 transition-colors hover:text-granate"
+                >
+                  Quitar
+                </button>
+              )}
+            </div>
+          </div>
+
+          {updateError && <p className="text-sm text-granate">{updateError}</p>}
+
+          <div className="flex flex-wrap gap-3">
+            <button type="submit" className="btn-primary">
+              Guardar cambios
+            </button>
+            <button
+              type="button"
+              onClick={closeEditForm}
+              className="cursor-pointer px-4 py-2 text-sm text-tinta/70 transition-colors hover:text-granate"
+            >
+              Cancelar
+            </button>
+          </div>
+
+          <div className="border-t border-dorado/30 pt-4">
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="cursor-pointer rounded-md border border-granate/40 px-4 py-2 text-sm text-granate transition hover:bg-granate hover:text-cream"
+            >
+              Borrar libro
+            </button>
+          </div>
+        </form>
+      </BottomSheet>
     </div>
   );
 }
