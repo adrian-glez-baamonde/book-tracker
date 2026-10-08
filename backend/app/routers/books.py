@@ -9,11 +9,27 @@ from app.services.open_library import search_books_by_title, format_book_result
 router = APIRouter()
 
 
-def calculate_current_page(status: StatusItem, total_pages: int | None, current_page: int) -> int:
-    if status == StatusItem.READ:
-        return total_pages if total_pages is not None else 0
+def resolve_reading_progress(
+    status: StatusItem,
+    current_page: int,
+    total_pages: int | None,
+    apply_automatic_transitions: bool
+) -> tuple[StatusItem, int]:
+    # 1. Transiciones automáticas: solo cuando el usuario cambia la página sin elegir estado
+    if apply_automatic_transitions:
+        if total_pages is not None and current_page == total_pages:
+            status = StatusItem.READ                                                    # Ha llegado a la última página
+        elif current_page > 0 and status == StatusItem.TO_READ:
+            status = StatusItem.READING                                                 # Ha empezado a leerlo
 
-    return current_page
+    # 2. Coherencia entre estado y página
+    if status == StatusItem.READ and total_pages is not None:
+        current_page = total_pages                                                      # Leído: página = total (si se conoce)
+    elif status == StatusItem.TO_READ:
+        current_page = 0                                                                # Por leer: sin empezar
+
+    # Si es READ sin total_pages, se conserva current_page (antes se ponía a 0)
+    return status, current_page
 
 
 def validate_page_consistency(current_page: int, total_pages: int | None) -> None:
@@ -25,19 +41,24 @@ def validate_page_consistency(current_page: int, total_pages: int | None) -> Non
 
 @router.post("/books", response_model=BookResponse, status_code=status.HTTP_201_CREATED)
 async def create_book(
-    book: BookCreate, 
+    book: BookCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    
-    current_page = calculate_current_page(book.status, book.total_pages, book.current_page)
+
+    book_status, current_page = resolve_reading_progress(
+        book.status,
+        book.current_page,
+        book.total_pages,
+        apply_automatic_transitions=True
+    )
     validate_page_consistency(current_page, book.total_pages)
 
     new_book = Book(
         title=book.title,
         author=book.author,
         current_page=current_page,
-        status=book.status,
+        status=book_status,
         cover_url=book.cover_url,
         total_pages=book.total_pages,
         owner_id=current_user.id
@@ -133,7 +154,17 @@ async def update_book(
     if book_update.status is not None:
         book.status = book_update.status
 
-    book.current_page = calculate_current_page(book.status, book.total_pages, book.current_page)
+    # Solo hay transición automática si el usuario cambió la página y NO eligió estado
+    page_changed_without_status = (
+        book_update.current_page is not None and book_update.status is None
+    )
+
+    book.status, book.current_page = resolve_reading_progress(
+        book.status,
+        book.current_page,
+        book.total_pages,
+        apply_automatic_transitions=page_changed_without_status
+    )
     validate_page_consistency(book.current_page, book.total_pages)
 
     db.commit()
@@ -181,7 +212,7 @@ async def get_stats(
     total_pages_read = sum([b.current_page for b in books])
 
     reading_books_with_total = [
-        b for b in books 
+        b for b in books
         if b.status == StatusItem.READING and b.total_pages is not None
     ]
 
