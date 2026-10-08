@@ -35,7 +35,7 @@ def resolve_reading_progress(
 def validate_page_consistency(current_page: int, total_pages: int | None) -> None:
     if total_pages is not None and current_page > total_pages:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="El número de páginas actuales no puede ser superior al total")
 
 
