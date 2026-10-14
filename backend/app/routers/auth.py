@@ -20,7 +20,7 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
             detail="Correo no disponible")
 
     new_user = User(
-        email=user.email,
+        email=user.email,                                                               # Ya llega en minúsculas desde el schema
         hashed_password=hash_password(user.password)
     )
 
@@ -34,7 +34,9 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
 
-    user = db.query(User).filter(User.email == form_data.username).first()
+    email = form_data.username.strip().lower()                                          # Mismo formato que al registrarse
+
+    user = db.query(User).filter(User.email == email).first()
     if user is None or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

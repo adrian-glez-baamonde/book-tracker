@@ -3,6 +3,7 @@ import BookCover from "../components/BookCover";
 import BottomSheet from "../components/BottomSheet";
 import { STATUS_LABELS } from "../constants/bookStatus";
 import { useState, useEffect } from "react";
+import { API_URL } from "../config";
 
 const EMPTY_EDIT_FORM = { title: "", author: "", totalPages: "", coverUrl: "" };
 
@@ -42,7 +43,7 @@ function BookDetailPage() {
 
     async function fetchBook() {
       try {
-        const response = await fetch(`http://localhost:8000/books/${id}`, {
+        const response = await fetch(`${API_URL}/books/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -80,7 +81,7 @@ function BookDetailPage() {
     setUpdateError(null);
 
     try {
-      const response = await fetch(`http://localhost:8000/books/${id}`, {
+      const response = await fetch(`${API_URL}/books/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -156,7 +157,7 @@ function BookDetailPage() {
     setIsDeleting(true);
 
     try {
-      const response = await fetch(`http://localhost:8000/books/${id}`, {
+      const response = await fetch(`${API_URL}/books/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

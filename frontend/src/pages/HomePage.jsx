@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Shelf from "../components/Shelf";
+import { API_URL } from "../config";
 
 const shelves = [
   { status: "reading", label: "Leyendo" },
@@ -18,7 +19,7 @@ function HomePage() {
   useEffect(() => {
     async function fetchBooks() {
       try {
-        const response = await fetch("http://localhost:8000/books", {
+        const response = await fetch(`${API_URL}/books`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
