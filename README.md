@@ -1,128 +1,123 @@
-# Book Tracker
+# Monfort
 
-App full-stack para llevar el registro de tus lecturas: biblioteca personal con progreso de lectura, portadas automáticas vía Open Library API y autenticación de usuarios.
+**Tu biblioteca personal.** Organiza tus libros en estanterías por estado de lectura, sigue tu progreso página a página y añade nuevos títulos buscándolos en Open Library.
 
-## Tecnologías
+**[Ver la demo →](https://monfort-biblioteca.vercel.app)**
 
-- **Backend:** Python, FastAPI, SQLAlchemy, SQLite, pytest
-- **Frontend:** React, Tailwind CSS
+> Pulsa **«Probar con la cuenta demo»** en la pantalla de acceso para entrar sin registrarte.
+> El backend está en un plan gratuito que se duerme tras 15 minutos sin uso: **la primera carga puede tardar hasta un minuto** mientras el servidor despierta. Después funciona con normalidad.
 
-## Estado del proyecto
+<p align="center">
+  <img src="docs/screenshots/estanteria.png" alt="Estantería con las baldas Leyendo, Por leer y Leídos" width="250" />
+  <img src="docs/screenshots/detalle.png" alt="Detalle de un libro con su progreso de lectura" width="250" />
+  <img src="docs/screenshots/edicion.png" alt="Edición de los datos del libro en un bottom sheet" width="250" />
+</p>
 
-🚧 En desarrollo — MVP en construcción.
-
-- ✅ Backend: completo y testeado (auth, CRUD de libros, búsqueda por Open Library, estadísticas)
-- ⬜ Frontend: pendiente de empezar
+<p align="center">
+  <img src="docs/screenshots/escritorio.png" alt="Estantería en la versión de escritorio" width="780" />
+</p>
 
 ## Funcionalidades
 
-- Registro y login de usuarios (autenticación con JWT)
-- Añadir, editar, consultar y eliminar libros de tu biblioteca
-- Estados de lectura: por leer / leyendo / leído
-- Seguimiento de página actual y progreso de lectura
-- Búsqueda de libros por título usando la API de Open Library, con autor y portada
-- Estadísticas de lectura: total de libros, libros por estado, páginas leídas, progreso medio
+- **Estantería por estado**: tres baldas (Leyendo, Por leer, Leídos) con portadas y barra de progreso.
+- **Búsqueda en Open Library** al añadir un libro, con autocompletado de título, autor, páginas y portada.
+- **Progreso de lectura** con reglas automáticas: al empezar un libro pasa a «Leyendo», al llegar a la última página pasa a «Leído».
+- **Edición y borrado** desde un _bottom sheet_ que se cierra arrastrando en móvil y como modal en escritorio.
+- **Estadísticas**: libros por estado, páginas leídas y progreso medio.
+- **Registro e inicio de sesión** con JWT, y cuenta demo de acceso inmediato.
+- **Diseño mobile-first**: pensado para usarse en el móvil, con botón flotante para añadir libros y paneles que se cierran con gestos; en escritorio se adapta a pantalla ancha.
 
-## Estructura del proyecto
+## Stack
 
-Backend y frontend viven en el mismo repositorio (decisión deliberada: más simple para un proyecto en solitario).
+| Capa          | Tecnologías                                                                     |
+| ------------- | ------------------------------------------------------------------------------- |
+| Frontend      | React, Vite, React Router, Tailwind CSS v4                                      |
+| Backend       | Python 3.13, FastAPI, SQLAlchemy 2, Pydantic v2, JWT (python-jose), bcrypt      |
+| Base de datos | PostgreSQL (Neon) en producción, SQLite en desarrollo                           |
+| Tests         | pytest (TestClient de FastAPI, base de datos aislada y mocks de la API externa) |
+| Despliegue    | Vercel (frontend), Render (backend), Neon (base de datos)                       |
+| Herramientas  | uv, npm, ESLint, Prettier, GitHub (flujo con ramas y Pull Requests)             |
 
-```
-BookTracker/
-├── backend/
-│   ├── app/
-│   │   ├── main.py
-│   │   ├── database.py       # configuración de la base de datos (Base, get_db)
-│   │   ├── models.py         # modelos de SQLAlchemy (User, Book)
-│   │   ├── schemas.py        # esquemas de Pydantic
-│   │   ├── security.py       # hashing de contraseñas, JWT, autenticación
-│   │   ├── routers/
-│   │   │   ├── auth.py       # /register, /login
-│   │   │   └── books.py      # CRUD de libros, búsqueda, estadísticas
-│   │   └── services/
-│   │       └── open_library.py   # integración con la API de Open Library
-│   ├── tests/                 # suite de tests (pytest)
-│   ├── .env                   # variables de entorno (no se sube a git)
-│   └── pyproject.toml
-├── frontend/                  # creada, pendiente de empezar
-└── .gitignore                 # Python + Node combinado
-```
-
-## Backend
-
-### Requisitos
-
-- Python 3.11+
-- [uv](https://github.com/astral-sh/uv) como gestor de paquetes y entornos
-
-### Variables de entorno
-
-Crear un archivo `backend/.env` (no se versiona) con:
+## Arquitectura
 
 ```
-SECRET_KEY=tu_clave_secreta
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
+Navegador ──► Vercel (React estático) ──► Render (API FastAPI) ──► Neon (PostgreSQL)
+                                                  │
+                                                  └──► Open Library (búsqueda de libros)
 ```
 
-### Instalación y arranque
+El frontend es una SPA servida como archivos estáticos. Toda la lógica de negocio vive en la API: el frontend envía los cambios y muestra siempre la respuesta del servidor, que es la fuente de verdad.
 
-```powershell
+## Decisiones técnicas
+
+- **Reglas de negocio en el backend.** Las transiciones de estado (empezar un libro, terminarlo, «desleerlo») se resuelven en una función pura, `resolve_reading_progress`, compartida por la creación y la edición. Si el usuario elige un estado a mano, se respeta; si solo cambia la página, el estado se deduce.
+- **PATCH real con `exclude_unset`.** El endpoint distingue entre un campo no enviado y un campo enviado a `null`, lo que permite, por ejemplo, quitar una portada. Los campos obligatorios no admiten `null`.
+- **Validación en los dos lados.** El frontend avisa pronto (formularios con `required`, comprobaciones antes de enviar) y el backend valida siempre con Pydantic: URLs de portada `http/https`, títulos no vacíos, emails válidos y normalizados a minúsculas, contraseñas de 8 a 72 caracteres.
+- **Ownership en todas las rutas.** Un usuario solo ve y modifica sus libros; acceder a un libro ajeno devuelve 404, igual que si no existiera, para no revelar qué ids existen.
+- **Configuración por variables de entorno.** El mismo código funciona en local (SQLite, sin configuración) y en producción (PostgreSQL), y la app no arranca si falta la clave secreta.
+- **Conexiones resistentes.** `pool_pre_ping` descarta las conexiones que Neon cierra al suspenderse por inactividad.
+- **Aviso de arranque en frío.** Un hook propio, `useSlowHint`, muestra «Despertando el servidor…» si una petición tarda más de unos segundos.
+- **Token en `localStorage`.** Es una decisión consciente por simplicidad; las cookies `httpOnly` serían más seguras frente a XSS y están en la lista de mejoras.
+
+## Ejecutar en local
+
+Requisitos: [uv](https://docs.astral.sh/uv/) y Node.js 20 o superior.
+
+### Backend
+
+```bash
 cd backend
 uv sync
+cp .env.example .env        # y rellena SECRET_KEY
 uv run uvicorn app.main:app --reload
 ```
 
-La API quedará disponible en `http://localhost:8000`. Documentación interactiva (Swagger) en `http://localhost:8000/docs`.
+La API queda en `http://localhost:8000`, con la documentación interactiva en `http://localhost:8000/docs`. Sin `DATABASE_URL`, usa un archivo SQLite local.
 
-> **Nota:** `bcrypt` está fijado a la versión `4.0.1` por una incompatibilidad conocida con `passlib` en versiones más recientes (sin este pin, el hasheo falla con "password cannot be longer than 72 bytes").
+Para crear la cuenta demo con libros de ejemplo (se puede repetir para reiniciarla):
+
+```bash
+uv run python -m scripts.seed_demo
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+La app queda en `http://localhost:5173` y se conecta al backend local. Para apuntar a otro backend, define `VITE_API_URL`.
 
 ### Tests
 
-```powershell
+```bash
 cd backend
-uv run pytest
+uv run pytest -v
 ```
 
-Suite actual: 20 tests, cubriendo autenticación, CRUD de libros con control de propiedad (ownership), búsqueda con Open Library mockeada y estadísticas.
+## API
 
-### Endpoints principales
+| Método | Ruta                   | Descripción                                               |
+| ------ | ---------------------- | --------------------------------------------------------- |
+| POST   | `/register`            | Crea una cuenta                                           |
+| POST   | `/login`               | Devuelve un token JWT                                     |
+| GET    | `/books`               | Lista los libros del usuario (filtro opcional por estado) |
+| POST   | `/books`               | Añade un libro                                            |
+| GET    | `/books/search?title=` | Busca en Open Library                                     |
+| GET    | `/books/{id}`          | Detalle de un libro                                       |
+| PATCH  | `/books/{id}`          | Actualiza un libro (parcial)                              |
+| DELETE | `/books/{id}`          | Borra un libro                                            |
+| GET    | `/stats`               | Estadísticas de lectura                                   |
 
-| Método | Ruta                | Descripción                                       | Auth |
-|--------|---------------------|----------------------------------------------------|:----:|
-| POST   | `/register`         | Registro de usuario                                | ❌   |
-| POST   | `/login`             | Login, devuelve access token (JWT)                 | ❌   |
-| POST   | `/books`             | Crear un libro en la biblioteca del usuario        | ✅   |
-| GET    | `/books`             | Listar libros del usuario (filtrable por estado)   | ✅   |
-| GET    | `/books/search`      | Buscar libros por título (Open Library)            | ✅   |
-| GET    | `/books/{book_id}`   | Consultar un libro                                 | ✅   |
-| PATCH  | `/books/{book_id}`   | Actualizar un libro                                | ✅   |
-| DELETE | `/books/{book_id}`   | Eliminar un libro                                  | ✅   |
-| GET    | `/stats`             | Estadísticas de lectura del usuario                | ✅   |
+## Próximas mejoras
 
-## Frontend (próximamente)
+- Refresh tokens y sesión en cookies `httpOnly`.
+- Migraciones de base de datos con Alembic.
+- Búsqueda en Open Library también por autor.
+- Reutilizar el buscador de Open Library al editar la portada (hook `useOpenLibrarySearch`).
 
-Carpeta `frontend/` ya creada, pendiente de implementar en React + Tailwind CSS. Se documentará aquí una vez arrancado:
+## Autor
 
-- [ ] Estructura de carpetas del frontend
-- [ ] Instrucciones de instalación y arranque
-- [ ] Configuración de CORS en el backend (FastAPI) para aceptar peticiones desde el frontend
-- [ ] Autenticación en frontend (guardar/enviar JWT, proteger rutas)
-- [ ] Flujo de integración de la búsqueda de Open Library en la UI (por decidir: desplegable de resultados vs. autofill tipo gestor de contraseñas)
-- [ ] Capturas de pantalla / demo
-
-## Pendiente / roadmap futuro (más allá del MVP)
-
-- Refresh tokens (actualmente solo access token)
-- Migraciones con Alembic
-- Normalizar email a minúsculas en registro/login
-- Tipar `status_filter` en `GET /books` como Enum en vez de `str`
-
-## Roadmap
-
-- [x] Backend: autenticación
-- [x] Backend: CRUD de libros
-- [x] Backend: integración con Open Library
-- [x] Backend: estadísticas
-- [ ] Frontend en React
-- [ ] Despliegue
+**Adrián González Baamonde** · [GitHub](https://github.com/adrian-glez-baamonde)
