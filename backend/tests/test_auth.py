@@ -32,3 +32,19 @@ def test_login_wrong_password_fails(client, test_user):
         data={"username": test_user.email, "password": "contraseña12345"}
     )
     assert response.status_code == 401
+
+
+def test_register_short_password_fails(client):
+    response = client.post("/register", json={"email": "nuevo@mail.com", "password": "corta"})
+    assert response.status_code == 422
+
+
+def test_register_invalid_email_fails(client):
+    response = client.post("/register", json={"email": "noesunemail", "password": "contraseña123"})
+    assert response.status_code == 422
+
+
+def test_login_email_is_case_insensitive(client):
+    client.post("/register", json={"email": "Ana@Mail.com", "password": "contraseña123"})
+    response = client.post("/login", data={"username": "ana@MAIL.com", "password": "contraseña123"})
+    assert response.status_code == 200
