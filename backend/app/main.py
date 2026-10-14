@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.routers import auth, books
 from app.database import engine, Base
 from app.models import User, Book
+from app.config import CORS_ORIGINS
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -13,7 +14,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
