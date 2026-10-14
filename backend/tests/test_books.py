@@ -359,3 +359,21 @@ def test_create_book_valid_cover_url_is_stored_as_text(client, auth_headers):
     )
     assert response.status_code == 201
     assert response.json()["cover_url"] == cover_url
+
+
+def test_create_book_empty_title_fails(client, auth_headers):
+    response = client.post(
+        "/books",
+        json={"title": "   ", "author": "Anónimo"},
+        headers=auth_headers
+    )
+    assert response.status_code == 422
+
+
+def test_update_book_empty_title_fails(client, auth_headers, test_book):
+    response = client.patch(
+        f"/books/{test_book.id}",
+        json={"title": ""},
+        headers=auth_headers
+    )
+    assert response.status_code == 422

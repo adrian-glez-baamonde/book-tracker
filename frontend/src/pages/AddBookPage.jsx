@@ -137,6 +137,7 @@ function AddBookPage() {
           <div className="relative mb-4">
             <input
               id="title"
+              required
               type="text"
               value={title}
               onChange={(e) => {

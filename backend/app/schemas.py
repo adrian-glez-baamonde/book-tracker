@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from typing import Annotated
-from pydantic import AfterValidator, BaseModel, Field, HttpUrl, TypeAdapter
+from pydantic import AfterValidator, BaseModel, Field, HttpUrl, TypeAdapter, StringConstraints
 
 
 _http_url_adapter = TypeAdapter(HttpUrl)
@@ -12,7 +12,7 @@ def validate_http_url(value: str) -> str:
 
 
 CoverUrl = Annotated[str, AfterValidator(validate_http_url)]
-
+BookTitle = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 class StatusItem(str, Enum):
     TO_READ = "to-read"
@@ -32,7 +32,7 @@ class UserResponse(BaseModel):
 
 
 class BookCreate(BaseModel):
-    title: str
+    title: BookTitle
     author: str
     current_page: int = Field(default=0, ge=0)
     status: StatusItem = StatusItem.TO_READ
@@ -41,7 +41,7 @@ class BookCreate(BaseModel):
 
 
 class BookUpdate(BaseModel):
-    title: str | None = None
+    title: BookTitle | None = None
     author: str | None = None
     cover_url: CoverUrl | None = None
     total_pages: int | None = Field(default=None, gt=0)
