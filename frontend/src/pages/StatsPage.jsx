@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_URL } from "../config";
 
 function StatsPage() {
   const [stats, setStats] = useState(null);
@@ -10,7 +11,7 @@ function StatsPage() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const response = await fetch("http://localhost:8000/stats", {
+        const response = await fetch(`${API_URL}/stats`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

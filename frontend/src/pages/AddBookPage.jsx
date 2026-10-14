@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 
 function AddBookPage() {
   const [title, setTitle] = useState("");
@@ -34,14 +35,11 @@ function AddBookPage() {
 
     const timeoutId = setTimeout(async () => {
       try {
-        const response = await fetch(
-          `http://localhost:8000/books/search?title=${title}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        const response = await fetch(`${API_URL}/books/search?title=${title}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         if (!response.ok) {
           throw new Error("Error al buscar en Open Library");
@@ -80,7 +78,7 @@ function AddBookPage() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8000/books", {
+      const response = await fetch(`${API_URL}/books`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
